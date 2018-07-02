@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:tx="http://www.springframework.org/schema/tx" xmlns:context="http://www.springframework.org/schema/context"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
+        http://www.springframework.org/schema/beans/spring-beans.xsd
+        http://www.springframework.org/schema/tx
+        http://www.springframework.org/schema/tx/spring-tx.xsd
+        http://www.springframework.org/schema/context
+        http://www.springframework.org/schema/context/spring-context.xsd
+        ">
+	<context:component-scan base-package="com.yx.*.*">
+		<context:exclude-filter type="annotation" expression="org.springframework.stereotype.Controller" />
+	</context:component-scan>
+	<tx:annotation-driven transaction-manager="txManager" proxy-target-class="true"/>
+	<!-- 数据库连接池 -->
+	<bean id="dataSource" class="com.alibaba.druid.pool.DruidDataSource"
+		destroy-method="close">
+		<property name="driverClassName" value="${jdbc.driverClassName}" />
+		<property name="url" value="${jdbc.url}" />
+		<property name="username" value="${jdbc.username}" />
+		<property name="password" value="${jdbc.password}" />
+	</bean>
+	<!-- mybatis sqlsession配置 -->
+	<!-- 同样的, 也不要忘了PlatformTransactionManager -->
+	<bean id="txManager"
+		class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+		<property name="dataSource" ref="dataSource" />
+	</bean>
+	<bean id="sqlSession" class="org.mybatis.spring.SqlSessionTemplate">
+		<constructor-arg index="0" ref="sqlSessionFactory" />
+		<constructor-arg index="1" value="BATCH" />
+	</bean>
+	<bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+		<property name="dataSource" ref="dataSource" />
+		<property name="mapperLocations" value="classpath*:mappers/*.xml"/>
+		<property  name="configLocation" value="classpath:sqlMapConfig.xml"/>
+	</bean>
+	<bean id="absDao" class="org.mybatis.spring.support.SqlSessionDaoSupport"
+		abstract="true">
+		
+	</bean>
+	<bean id="dao" class="com.yx.sys.persistence.OaDaoSupport" parent="absDao">
+		<property name="sqlSessionTemplate" ref="sqlSession" />
+	</bean>
+
+</beans>        

@@ -1,0 +1,360 @@
+<!DOCTYPE mapper
+    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- 简单小型系统没有引入过多mapper配置 -->
+<mapper namespace="sys">
+    <!-- 用于测试insert语句 -->
+	<insert id="insertMark">
+		insert into mark (score)
+		values (#{score})
+	</insert>
+	<select id="getOrgById" resultType="Org" parameterType="map">
+		select *
+		from sys_org
+		where 1 = 1
+		<if test="id != null and id != ''">
+			and id = #{id}
+		</if>
+		<if test="pid != null and pid != ''">
+			and parent_id = #{pid}
+			limit #{start},#{end}
+		</if>
+    </select>
+	<select id="getNotice" resultType="Notice" parameterType="map">
+		select *
+		from oa_notice
+		where 1 = 1
+		<if test="id != null and id != ''">
+			and id = #{id}
+		</if>
+		order by create_time
+	    limit #{start},#{end}
+	</select>
+	<select id="getNoticeUser" resultType="Notice" parameterType="string">
+      SELECT
+			a.*, b.if_sign
+		FROM
+			oa_notice a ,
+			oa_notice_user b
+		WHERE
+			a.id = b.notice_id
+		AND ifnull(a.if_publish , '0') = '1'
+		AND b.user_id = #{user_id}
+	</select>
+	<select id="getUserByOrfId" resultType="User" parameterType="map">
+		SELECT
+			a.*, b. NAME as orgname
+		FROM
+			sys_user a ,
+			sys_org b
+		WHERE
+			a.orgid = b.id
+		<if test="orgid != null and orgid != ''">
+			and b.id = #{orgid}
+		</if>
+        limit #{start},#{end}
+    </select>
+	<select id="getRoleByLoginid" resultType="Role" parameterType="string">
+		SELECT
+		a.user_id as logdinid,
+		a.role_id as id
+		FROM
+		sys_users_roles a ,
+		sys_user b
+		WHERE
+		a.user_id = id
+		AND b.loginid = #{loginid}
+
+	</select>
+	<select id="getRoleById" resultType="Role" parameterType="map">
+		select *
+		from sys_role
+		where 1 = 1
+		  and available = '1'
+		<if test="id != null and id != ''">
+			and id = #{id}
+		</if>
+
+	</select>
+	<select id="getUserById" resultType="User" parameterType="string">
+	    select *
+	      from sys_user
+	     where loginid = #{loginid}
+	</select>
+	<select id="getPerms" resultType="string" parameterType="string">
+		select distinct d.url
+		  from sys_user a,sys_users_roles b,sys_roles_permissions c,sys_menu d
+		 where a.id = b.user_id
+		   and b.role_id = c.role_id
+		   and c.permission = d.permission
+		   and a.loginid = #{loginid}
+		   and d.url is not null
+	</select>
+	<select id="getRoot" resultType="Menu" parameterType="string">
+		select *
+		  from sys_menu
+		where parent_id = #{root}
+	 order by sort asc
+	</select>
+	<select id="getMenusByUserRole" resultType="Menu" parameterType="string">
+		SELECT d.*
+		FROM
+			sys_menu d
+		WHERE
+			1 = 1
+		AND EXISTS(
+			SELECT
+				1
+			FROM
+				sys_roles_permissions c
+			WHERE
+				1 = 1
+			AND c.permission = ifnull(d.permission,c.permission)
+			AND c.role_id = #{roleid}
+		)
+    </select>
+	<select id="getModels" resultType="Model" parameterType="map">
+		/*SELECT
+			def.*, dep.DEPLOY_TIME_
+		FROM
+		ACT_RE_PROCDEF def,
+		ACT_RE_DEPLOYMENT dep
+		WHERE
+			def.DEPLOYMENT_ID_ = dep.ID_
+		ORDER BY
+			VERSION_ DESC*/
+		select *
+		  from ACT_RE_MODEL
+		 where 1=1
+		<if test="mid != null and mid != ''">
+			and ID_ = #{mid}
+		</if>
+    </select>
+	<select id="getMenus" resultType="Menu" parameterType="map">
+		select d.*
+		  from sys_menu d
+		 where 1=1
+		   and d.if_show = '1'
+		   and exists(
+		     select 1
+		       from sys_users_roles b,sys_roles_permissions c, sys_user a
+		      where 1=1
+		        and a.id = b.user_id
+			    and b.role_id = c.role_id
+			    and c.permission = ifnull(d.permission,c.permission)
+			    and a.loginid = #{loginid}
+		   )
+		   and d.parent_id = #{parent_id}
+		   order by d.sort asc
+	</select>
+	<select id="getChildren" resultType="Menu" parameterType="map">
+		select *
+		  from sys_menu
+		 where parent_id = #{parent_id}
+		order by sort asc
+	</select>
+	<select id="getMenuById" resultType="Menu" parameterType="string">
+	    select *
+	      from sys_menu
+	    where id = #{id}
+    </select>
+	<select id="getFlows" resultType="map" parameterType="map">
+		SELECT
+			def.*, dep.DEPLOY_TIME_
+		FROM
+				ACT_RE_PROCDEF def,
+				ACT_RE_DEPLOYMENT dep
+		WHERE
+			def.DEPLOYMENT_ID_ = dep.ID_
+		ORDER BY
+			VERSION_ DESC
+		LIMIT #{start},#{end}
+	</select>
+	<update id="updateUser" parameterType="User">
+		update sys_user
+		<trim prefix="set" suffixOverrides=",">
+			<if test="username!=null">username=#{username},</if>
+			<if test="password!=null">password=#{password},</if>
+			<if test="sex!=null">sex=#{sex},</if>
+			<if test="orgid!=null">orgid=#{orgid},</if>
+			<if test="email!=null">email=#{email},</if>
+			<if test="mobile!=null">mobile=#{mobile},</if>
+			<if test="idcard!=null">idcard=#{idcard},</if>
+		</trim>
+		where loginid = #{loginid}
+	</update>
+	<update id="updateNotice" parameterType="string">
+		update oa_notice
+		   set if_publish = '1',publish_time = DATE_FORMAT(NOW(),'%Y-%m-%d')
+		where id = #{id}
+		  and if_publish = '0'
+	</update>
+	<update id="updateMenu" parameterType="Menu">
+        update sys_menu
+        <trim prefix="set" suffixOverrides=",">
+			<if test="icon!=null">icon=#{icon},</if>
+			<if test="name!=null">name=#{name},</if>
+			<if test="description!=null">description=#{description},</if>
+			<if test="url!=null">url=#{url},</if>
+			<if test="parent_id!=null">parent_id=#{parent_id},</if>
+			<if test="if_show!=null">if_show=#{if_show},</if>
+		</trim>
+		where id = #{id}
+	</update>
+	<update id="updateNoticeContent" parameterType="Notice">
+		update oa_notice
+		<trim prefix="set" suffixOverrides=",">
+			<if test="content!=null">content=#{content},</if>
+		</trim>
+		where id = #{id}
+	</update>
+	<update id="signNotice" parameterType="map">
+		UPDATE oa_notice_user
+			SET if_sign = '1'
+			WHERE
+				1 = 1
+			AND if_sign = '0'
+			AND notice_id = #{notice_id}
+			AND user_id = #{user_id}
+	</update>
+	<update id="updateOrg" parameterType="Org">
+		update sys_org
+		<trim prefix="set" suffixOverrides=",">
+			<if test="name!=null">name=#{name},</if>
+			<if test="description!=null">description=#{description},</if>
+			<if test="parent_id!=null">parent_id=#{parent_id},</if>
+			<if test="sort!=null">sort=#{sort},</if>
+		</trim>
+		where id = #{id}
+	</update>
+	<insert id="insertMenu" parameterType="Menu" >
+		insert into sys_menu (id,name,parent_id,isparent,sort,icon,description,if_show,permission,url)
+		values (#{id},#{name},#{parent_id},ifnull(#{isparent},'0'),#{sort},#{icon},#{description},
+		ifnull(#{if_show},'0'),#{permission},#{url})
+	</insert>
+	<insert id="insertOrg" parameterType="Org" >
+		insert into sys_org (name,parent_id,isparent,sort,description,name)
+		values (#{name},#{parent_id},ifnull(#{isparent},'0'),#{sort},#{description},#{name})
+	</insert>
+	<insert id="insertRole" parameterType="Role" >
+		insert into sys_role (role,name,description)
+		values (#{role},#{name},#{description})
+    </insert>
+	<insert id="insertUser" parameterType="User" >
+		insert into sys_user(loginid,username,password,sex,orgid,email,mobile,idcard)
+		values(#{loginid},#{username},#{password},#{sex},#{orgid},#{email},#{mobile},#{idcard})
+    </insert>
+	<insert id="insertNotice" parameterType="Notice" keyColumn="id" keyProperty="id" useGeneratedKeys="true" >
+		insert into oa_notice(title,sub_title,sender_id,sender_name,sender_orgid,
+		sender_orgname,create_time,content,to_org_id,to_org_name,if_publish)
+		values(#{title},#{sub_title},#{sender_id},#{sender_name},#{sender_orgid},
+		#{sender_orgname},CURDATE(),#{content},#{to_org_id},#{to_org_name},ifnull(#{if_publish},'0'))
+	</insert>
+	<insert id="authRoles" parameterType="map" >
+		INSERT INTO sys_users_roles(role_id , user_id)
+		SELECT DISTINCT
+		a.id ,
+		#{user_id}
+		FROM
+		sys_role a
+		WHERE
+		NOT EXISTS(
+		SELECT
+		1
+		FROM
+		sys_users_roles b
+		WHERE
+		b.user_id = #{user_id}
+		AND a.id = b.role_id
+		)
+		AND a.id IN
+		<foreach collection="rs" index="index" item="item" open="(" separator="," close=")">
+			#{item}
+		</foreach>
+	</insert>
+	<insert id="insertNoticeUser" parameterType="map" >
+		INSERT INTO oa_notice_user(
+			id ,
+			user_id ,
+			user_name ,
+			notice_id ,
+			if_sign ,
+			sign_time
+		) SELECT
+			NULL ,
+			id ,
+			username ,
+			#{notice_id} ,
+			'0' ,
+			NULL
+		FROM
+			sys_user
+		WHERE
+			orgid IN
+		<foreach collection="orgs" index="index" item="item" open="(" separator="," close=")">
+			#{item}
+		</foreach>
+	</insert>
+	<insert id="authRolePermssions" parameterType="map" >
+		INSERT INTO sys_roles_permissions(role_id , permission)
+		SELECT DISTINCT
+			#{roleid} ,
+			a.permission
+		FROM
+			sys_menu a
+		WHERE
+			NOT EXISTS(
+				SELECT
+					1
+				FROM
+					sys_roles_permissions b
+				WHERE
+					a.permission = b.permission
+		          AND b.role_id = #{roleid}
+			)
+		AND a.id IN
+		<foreach collection="rs" index="index" item="item" open="(" separator="," close=")">
+			#{item}
+		</foreach>
+		and a.permission is not null
+    </insert>
+	<delete id="deRoles" parameterType="map" >
+		DELETE
+		FROM
+		sys_users_roles
+		WHERE
+		1 = 1
+		AND role_id NOT IN
+		<foreach collection="rs" index="index" item="item" open="(" separator="," close=")">
+			#{item}
+		</foreach>
+		AND user_id IN(
+		SELECT
+		id
+		FROM
+		sys_user
+		WHERE
+		1 = 1
+		AND loginid = #{loginid}
+		)
+    </delete>
+	<delete id="deRolePermssions" parameterType="map" >
+		DELETE
+		FROM
+			sys_roles_permissions
+		WHERE
+			1 = 1
+		AND permission NOT IN(
+			SELECT
+				ifnull(permission , '$$$$')
+			FROM
+				sys_menu
+			WHERE
+				id IN
+		<foreach collection="rs" index="index" item="item" open="(" separator="," close=")">
+			#{item}
+		</foreach>
+		)
+		AND role_id = #{roleid}
+    </delete>
+</mapper>

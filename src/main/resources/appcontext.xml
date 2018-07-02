@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
+        http://www.springframework.org/schema/beans/spring-beans.xsd">
+	<!-- spring的属性加载器，加载properties文件中的属性 -->
+	<bean id="propertyConfigurer"
+		class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+		<property name="location">
+			<value>classpath:jdbc.properties</value>
+		</property>
+		<property name="fileEncoding" value="utf-8" />
+	</bean>
+	<!-- 引入shiro -->
+	<import resource="spring-shiro.xml" />
+	<!-- encache -->
+	<import resource="spring-encache.xml" />
+	<!-- 数据源 -->
+	<import resource="spring-datasource.xml" />
+	<!-- beans -->
+	<import resource="spring-beans.xml" />
+	<!-- webapplicationcontext -->
+	<bean class="com.yx.utils.BeanUtil" />
+	<!--websocket引入-->
+	<import resource="spring-websocket.xml" />
+	<import resource="spring-activiti.xml" />
+</beans>        

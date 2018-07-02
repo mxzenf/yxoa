@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OA | 在线办公平台</title>
+
+
+    <!--STYLESHEET-->
+    <!--=================================================-->
+
+    <#include "include.ftl">
+
+	<!-- 动态主题
+	#if(setting.color_theme!=null)
+		<link id="theme" href="${Request.ctx}#(setting.color_theme)" rel="stylesheet">
+	#end
+	-->
+    <!--=================================================-->
+    
+    <!--Demo script [ DEMONSTRATION ]-->
+    <script src="${Request.ctx}/common/js/demo/nifty-demo.js"></script>
+
+    
+    <!--Morris.js [ OPTIONAL ]-->
+    <script src="${Request.ctx}/common/plugins/morris-js/morris.min.js"></script>
+	<script src="${Request.ctx}/common/plugins/morris-js/raphael-js/raphael.min.js"></script>
+
+
+    <!--Sparkline [ OPTIONAL ]-->
+    <script src="${Request.ctx}/common/plugins/sparkline/jquery.sparkline.min.js"></script>
+    <style>
+        .speech{
+            min-width:200px;
+        }
+    </style>
+
+    <!--=================================================
+
+    REQUIRED  必须的
+    You must include this in your project.
+
+
+    RECOMMENDED 推荐的
+    This category must be included but you may modify which plugins or components which should be included in your project.
+
+
+    OPTIONAL  可选的
+    Optional plugins. You may choose whether to include it in your project or not.
+
+
+    DEMONSTRATION 例子
+    This is to be removed, used for demonstration purposes only. This category must not be included in your project.
+
+
+    SAMPLE  样品
+    Some script samples which explain how to initialize plugins or components. This category should not be included in your project.
+
+
+    Detailed information and more samples can be found in the document.
+
+    =================================================-->
+        
+</head>
+<!--TIPS-->
+<!--You may remove all ID or Class names which contain "demo-", they are only used for demonstration. -->
+<body>
+    <!--
+    <div id="container" class="    
+	    	#if(setting.box_lay=='1') boxed-layout #end     
+	    	#if(setting.animate=='1') effect #(setting.animate_type) #end
+	    	#if(setting.fixed_navbar=='1') navbar-fixed #end
+	    	#if(setting.fixed_footer=='1') footer-fixed #end
+	    	#if(setting.fixed_nav=='1') mainnav-fixed #end
+	    	#if(setting.show_asd=='1') aside-in #end
+	    	#if(setting.fixed_asd=='1') aside-fixed #end
+	    	#if(setting.left_asd=='1') aside-left #end
+	    	#if(setting.float_asd=='1') aside-float #end
+	    	#if(setting.dark_asd=='0') aside-bright #end
+	    	#if(setting.nav_coll=='1') mainnav-sm #else mainnav-lg #end
+    	">
+	-->
+	<div id="container" class="effect aside-float">
+		<!--
+    	#if(setting.box_lay=='1'&&setting.box_back_img!=null&&setting.box_back_img!='') 
+    		style="background-image: url(#(setting.box_back_img));background-repeat: no-repeat;background-size: cover;"  
+    	#end> 
+        -->
+        <!--NAVBAR-->
+        <!--===================================================-->
+        <#include "header.ftl">
+        <!--===================================================-->
+        <!--END NAVBAR-->
+		
+        <div class="boxed">
+
+            <!--CONTENT CONTAINER-->
+            <!--===================================================-->
+            <div id="content-container">
+			    <#include "main.ftl">
+            </div>
+            <!--===================================================-->
+            <!--END CONTENT CONTAINER-->
+
+
+            
+            <!--ASIDE-->
+            <!--===================================================-->
+		    <#include "aside.ftl">
+            <!--===================================================-->
+            <!--END ASIDE-->
+
+            
+            <!--MAIN NAVIGATION-->
+            <!--===================================================-->
+		    <#include "nav.ftl">
+            <!--===================================================-->
+            <!--END MAIN NAVIGATION-->
+
+        </div>
+
+        
+
+        <!-- FOOTER -->
+        <!--===================================================-->
+	    <#include "footer.ftl">
+        <!--===================================================-->
+        <!-- END FOOTER -->
+
+
+        <!-- SCROLL PAGE BUTTON -->
+        <!--===================================================-->
+        <button class="scroll-top btn">
+            <i class="pci-chevron chevron-up"></i>
+        </button>
+        <!--===================================================-->
+
+
+
+    </div>
+
+    <!--===================================================-->
+    <!-- END OF CONTAINER -->
+
+	<#include "setting.ftl">
+    
+        <!-- SETTINGS - DEMO PURPOSE ONLY -->
+    <!--===================================================-->
+    
+    <!--===================================================-->
+    <!-- END SETTINGS -->
+	
+	<!-- 个性化配置代码 -->
+
+	<script>
+
+        //PJax
+        function doPjax(url){
+            $(document).on('pjax:start', function () {
+                history.replaceState({},"",ctx+"/admin/home.shtml");
+            });
+            $(document).on('pjax:end', function () {
+                history.replaceState({},"",ctx+"/admin/home.shtml");
+            });
+            $.pjax({'url': url, container: '#content-container',timeout:999999});
+        }
+        //PJax-可传递容器
+        function doPjaxC(url,container){
+            $(document).on('pjax:start', function () {
+                history.replaceState({},"",ctx+"/admin/home.shtml");
+            });
+            $(document).on('pjax:end', function () {
+                history.replaceState({},"",ctx+"/admin/home.shtml");
+            });
+            $.pjax({'url': url, container: container,timeout:999999});
+        }
+        //初始化高度
+        function initFullHeight(){
+            var clientW = document.body.clientHeight-160;
+            $(".lion-fullHeight").css("height",clientW+"px");
+        }
+	</script>
+</body>
+</html>

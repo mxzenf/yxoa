@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE configuration PUBLIC "-//mybatis.org//DTD Config 3.0//EN" "http://mybatis.org/dtd/mybatis-3-config.dtd">  
+<configuration>
+  <settings>
+    <setting name="logImpl" value="STDOUT_LOGGING" />
+  </settings>
+  <typeAliases>
+     <typeAlias type="com.yx.sys.entity.User" alias="User"/>
+     <typeAlias type="com.yx.sys.entity.Menu" alias="Menu"/>
+     <typeAlias type="com.yx.sys.entity.Role" alias="Role"/>
+     <typeAlias type="com.yx.sys.entity.Model" alias="Model"/>
+     <typeAlias type="com.yx.sys.entity.Org" alias="Org"/>
+     <typeAlias type="com.yx.sys.entity.Bumph" alias="Bumph"/>
+     <typeAlias type="com.yx.sys.entity.Notice" alias="Notice"/>
+     <typeAlias type="com.yx.sys.entity.Audience" alias="Audience"/>
+  </typeAliases>
+</configuration>
